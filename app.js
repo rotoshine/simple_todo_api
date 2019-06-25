@@ -19,5 +19,5 @@ mongoose
   })
   .then(e => console.error(e))
 
-app.use('/todos', require('./routes/todos'))
+app.use('/', require('./routes/todos'))
 app.listen(port, () => console.log(`Server listening on port ${port}`))
