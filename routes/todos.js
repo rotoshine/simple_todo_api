@@ -1,6 +1,18 @@
 const router = require('express').Router()
 const Todo = require('../models/Todo')
 
+router.get('/users', async (req, res) => {
+  try {
+    const todos = await Todo.find({}).select('username -_id')
+    const users = todos.map(todo => todo.username)
+    const usernames = {}
+    users.forEach(username => (usernames[username] = username))
+    return res.json(Object.keys(usernames))
+  } catch (e) {
+    return res.send(e.message)
+  }
+})
+
 router.get('/:username', async (req, res) => {
   try {
     const todos = await Todo.find({ username: req.params.username }).select(
@@ -8,7 +20,9 @@ router.get('/:username', async (req, res) => {
     )
     console.log(req.params.user, todos)
     return res.json(todos)
-  } catch (e) {}
+  } catch (e) {
+    return res.send(e.message)
+  }
 })
 
 router.post('/:username', async (req, res) => {
@@ -28,7 +42,9 @@ router.post('/:username', async (req, res) => {
       content: newTodo.content,
       isCompleted: newTodo.isCompleted,
     })
-  } catch (e) {}
+  } catch (e) {
+    return res.send(e.message)
+  }
 })
 
 router.delete('/:username/:todoId', async (req, res) => {
@@ -38,7 +54,9 @@ router.delete('/:username/:todoId', async (req, res) => {
     return res.json({
       message: `todoId ${todoId} removed.`,
     })
-  } catch (e) {}
+  } catch (e) {
+    return res.send(e.message)
+  }
 })
 
 router.put('/:usename/:todoId/toggle', async (req, res) => {
@@ -51,7 +69,9 @@ router.put('/:usename/:todoId/toggle', async (req, res) => {
     return res.json({
       message: `todoId ${todoId} updated`,
     })
-  } catch (e) {}
+  } catch (e) {
+    return res.send(e.message)
+  }
 })
 
 module.exports = router
