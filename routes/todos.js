@@ -1,13 +1,26 @@
 const router = require('express').Router()
 const Todo = require('../models/Todo')
 
+const delayedReturn = (req, res, returnJSON) => {
+  try{
+    const delayParam = parseInt(req.query.delay, 10)
+    const delay = isNaN(delayParam) ? 0 : delayParam
+
+    setTimeout(() => {
+      return res.json(returnJSON)
+    }, delay)
+  } catch(e) {
+    console.error(e)
+    return res.json(returnJSON)
+  }
+}
 router.get('/users', async (req, res) => {
   try {
     const todos = await Todo.find({}).select('username -_id')
     const users = todos.map(todo => todo.username)
     const usernames = {}
     users.forEach(username => (usernames[username] = username))
-    return res.json(Object.keys(usernames))
+    return delayedReturn(req, res, Object.keys(usernames))
   } catch (e) {
     return res.send(e.message)
   }
@@ -19,7 +32,7 @@ router.get('/:username', async (req, res) => {
       'content isCompleted'
     )
     console.log(req.params.user, todos)
-    return res.json(todos)
+    return delayedReturn(req, res, todos)
   } catch (e) {
     return res.send(e.message)
   }
@@ -38,7 +51,7 @@ router.post('/:username', async (req, res) => {
 
     await newTodo.save()
 
-    return res.json({
+    return delayedReturn(req, res, {
       content: newTodo.content,
       isCompleted: newTodo.isCompleted,
     })
@@ -51,7 +64,7 @@ router.delete('/:username/:todoId', async (req, res) => {
   try {
     const { todoId } = req.params
     await Todo.findByIdAndRemove(req.params.todoId)
-    return res.json({
+    return delayedReturn(req, res, {
       message: `todoId ${todoId} removed.`,
     })
   } catch (e) {
@@ -66,7 +79,7 @@ router.put('/:usename/:todoId/toggle', async (req, res) => {
     todo.isCompleted = !todo.isCompleted
     await todo.save()
     console.log(`todoId ${todoId} updated`)
-    return res.json({
+    return delayedReturn(req, res, {
       message: `todoId ${todoId} updated`,
     })
   } catch (e) {
