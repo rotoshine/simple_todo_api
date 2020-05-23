@@ -2,19 +2,22 @@ const router = require('express').Router()
 const Todo = require('../models/Todo')
 
 const delayedReturn = (req, res, returnJSON) => {
-  try{
+  try {
     const delayParam = parseInt(req.query.delay, 10)
     const delay = isNaN(delayParam) ? 0 : delayParam
 
     setTimeout(() => {
       return res.json(returnJSON)
     }, delay)
-  } catch(e) {
+  } catch (e) {
     console.error(e)
     return res.json(returnJSON)
   }
 }
 router.get('/users', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
   try {
     const todos = await Todo.find({}).select('username -_id')
     const users = todos.map(todo => todo.username)
@@ -27,6 +30,9 @@ router.get('/users', async (req, res) => {
 })
 
 router.get('/:username', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
   try {
     const todos = await Todo.find({ username: req.params.username }).select(
       'content isCompleted'
@@ -39,6 +45,9 @@ router.get('/:username', async (req, res) => {
 })
 
 router.post('/:username', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
   try {
     const { username } = req.params
     const { content } = req.body
@@ -61,6 +70,9 @@ router.post('/:username', async (req, res) => {
 })
 
 router.delete('/:username/:todoId', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
   try {
     const { todoId } = req.params
     await Todo.findByIdAndRemove(req.params.todoId)
@@ -73,6 +85,9 @@ router.delete('/:username/:todoId', async (req, res) => {
 })
 
 router.put('/:usename/:todoId/toggle', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
   try {
     const { todoId } = req.params
     const todo = await Todo.findById(req.params.todoId)
