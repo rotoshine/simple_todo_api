@@ -58,11 +58,12 @@ router.post('/:username', async (req, res) => {
       isCompleted: false,
     })
 
-    await newTodo.save()
+    const persistentTodo = await newTodo.save()
 
     return delayedReturn(req, res, {
-      content: newTodo.content,
-      isCompleted: newTodo.isCompleted,
+      _id: persistentTodo._id,
+      content: persistentTodo.content,
+      isCompleted: persistentTodo.isCompleted,
     })
   } catch (e) {
     return res.send(e.message)
