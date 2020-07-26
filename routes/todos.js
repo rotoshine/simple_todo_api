@@ -20,9 +20,9 @@ router.get('/users', async (req, res) => {
   }
   try {
     const todos = await Todo.find({}).select('username -_id')
-    const users = todos.map(todo => todo.username)
+    const users = todos.map((todo) => todo.username)
     const usernames = {}
-    users.forEach(username => (usernames[username] = username))
+    users.forEach((username) => (usernames[username] = username))
     return delayedReturn(req, res, Object.keys(usernames))
   } catch (e) {
     return res.send(e.message)
@@ -61,6 +61,7 @@ router.post('/:username', async (req, res) => {
     await newTodo.save()
 
     return delayedReturn(req, res, {
+      id: newTodo._id,
       content: newTodo.content,
       isCompleted: newTodo.isCompleted,
     })
@@ -69,6 +70,22 @@ router.post('/:username', async (req, res) => {
   }
 })
 
+router.delete('/:username/all', async (req, res) => {
+  if (req.query.hasError) {
+    return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
+  }
+
+  try {
+    const { username } = req.params
+    const result = await Todo.remove({ username: req.params.username })
+    console.log(result)
+    return delayedReturn(req, res, {
+      message: `user ${username} all todos removed.`,
+    })
+  } catch (e) {
+    return res.send(e.message)
+  }
+})
 router.delete('/:username/:todoId', async (req, res) => {
   if (req.query.hasError) {
     return res.status(500).send('서버에서 알 수 없는 에러가 발생!')
