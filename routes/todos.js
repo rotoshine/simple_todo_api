@@ -61,6 +61,7 @@ router.post('/:username', async (req, res) => {
     await newTodo.save()
 
     return delayedReturn(req, res, {
+      _id: newTodo._id,
       id: newTodo._id,
       content: newTodo.content,
       isCompleted: newTodo.isCompleted,
